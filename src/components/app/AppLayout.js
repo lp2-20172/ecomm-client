@@ -9,10 +9,11 @@ import {
   Link
 } from 'react-router-dom'
 import {
-  withRouter,
+  withRouter, Route
 } from 'react-router-dom'
 import { RouteWithSubRoutes, findActiveNodeRoute } from '../utils/Routes'
-import { routes } from '../routes'
+import { routes, routese } from '../routes'
+
 import { connect } from 'react-redux'
 
 //AppBar
@@ -28,6 +29,13 @@ import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
 import LightbulbOutline from 'material-ui-icons/LightbulbOutline';
 import Github from './Github';
 import AppMenu from './AppMenu'
+
+import { toggleTheme } from '../../actions'
+
+import { login, logout } from '../utils/OAuth2'
+import config from '../../conn'
+
+import { getLocalUserInfo } from '../../actions/auth-action'
 
 
 const drawerWidth = 240;
@@ -172,7 +180,7 @@ const styles = theme => ({
 
 
 
-  
+
 });
 
 
@@ -184,8 +192,14 @@ class RouteConfigExample extends React.Component {
     if (isWidthUp('lg', props.width)) {
       open = true
     }
+    let user = null
+    if (localStorage.getItem('user') !== "undefined") {
+      user = JSON.parse(localStorage.getItem('user'))
+    }
+
     this.state = {
       open: open,
+      username: user ? user.username : null
     }
 
   }
@@ -208,13 +222,45 @@ class RouteConfigExample extends React.Component {
     //console.log("main.handleDrawerClose.close:"+this.state.open)
   }
 
-  handleToggleShade = () => {
-    this.props.dispatch({ type: 'TOGGLE_THEME_SHADE' });
+  handleToggleShade = (event) => {
+    this.props.toggleTheme()
+    //this.props.dispatch({ type: 'TOGGLE_THEME_SHADE' });
+  }
+
+  lLogin = (event) => {
+    this.props.login(config).then(result => {
+      console.log('token: ' + JSON.stringify(result.token))
+      console.log('expiresAt: ' + JSON.stringify(result.expiresAt))
+      localStorage.setItem('userToken', result.token)
+
+      this.props.getLocalUserInfo().then(data => {
+        //console.log('user: ' + JSON.stringify(data))
+        localStorage.setItem('user', JSON.stringify(data))
+        if (data) {
+          this.setState({
+            username: data.username
+          })
+        }
+      })
+    }, function (e) {
+      console.log(e); // TypeError: Throwing
+    })
+  }
+
+  lLogout = (event) => {
+    console.log('logout2')
+    this.props.logout().then(result => {
+      localStorage.removeItem('userToken')
+      localStorage.removeItem('user')
+      this.setState({
+        username: null
+      })
+    })
   }
 
 
   render() {
-    const { classes, width, location } = this.props
+    const { classes, width, location, isLoggedIn } = this.props
     //console.log('location:' + JSON.stringify(location))
     //const { match, history } = this.props
     //console.log('match:' + JSON.stringify(match))
@@ -276,6 +322,10 @@ class RouteConfigExample extends React.Component {
               >
                 <Github />
               </IconButton>
+              {this.state.username}
+
+              <button onClick={isLoggedIn ? this.lLogout : this.lLogin} >{isLoggedIn ? 'logout' : 'Login'}</button>
+
 
             </Toolbar>
           </AppBar>
@@ -296,12 +346,15 @@ class RouteConfigExample extends React.Component {
               </div>
               <Divider />
 
-              <AppMenu routes= {routes}
-              onRequestClose={!isWidthUp('lg', width) ? this.handleDrawerClose : () => { }}>
+              <AppMenu routes={routes}
+                onRequestClose={!isWidthUp('lg', width) ? this.handleDrawerClose : () => { }}>
                 Loading...
               </AppMenu>
 
+
+
               <ul>
+                <li><Link to="/login">login</Link></li>
                 <li><Link to="/tacos">Tacos</Link></li>
                 <li><Link to="/sandwiches">Sandwiches</Link></li>
               </ul>
@@ -312,6 +365,16 @@ class RouteConfigExample extends React.Component {
           <main className={classNames(classes.content, ((this.state.open) && drawerDocked) && classes.contentShift)}>
             {routes.map((route, i) => (
               <RouteWithSubRoutes key={i} exact={route.exact} {...route} />
+            ))}
+            {routese.map((route, index) => (
+              // Render more <Route>s with the same paths as
+              // above, but different components this time.
+              <Route
+                key={index}
+                path={route.path}
+                exact={route.exact}
+                component={route.component}
+              />
             ))}
           </main>
         </div>
@@ -326,12 +389,21 @@ RouteConfigExample.propTypes = {
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
+  //isLoggedIn: PropTypes.bool.isRequired
 };
 
+const mapStateToProps = ({ auth }) => ({
+  isLoggedIn: auth.isLoggedIn
+})
 
 export default compose(
   withRouter,
   withStyles(styles),
   withWidth(),
-  connect(),
+  connect(mapStateToProps, {
+    login,
+    logout,
+    getLocalUserInfo,
+    toggleTheme
+  })
 )(RouteConfigExample)

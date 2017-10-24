@@ -29,11 +29,18 @@ class List extends Component {
     }
 
     handleClick = () => {
-        this.props.history.push('/categorias/new');
+        this.props.history.push('/catalogo/categorias/new');
     }
 
     render() {
-        const { list, del } = this.props
+        let { list, del } = this.props
+        if (list) {
+            
+        } else{
+            list =[]
+
+        }
+
         return (
 
             <Card>
@@ -85,7 +92,7 @@ class List extends Component {
                                         <TableCell >{d.nombre}</TableCell>
                                         <TableCell >{d.codigo}</TableCell>
                                         <TableCell >
-                                            <Link to={`/categorias/edit/${d.id}`} className="ui basic button green">Edit</Link>
+                                            <Link to={`/catalogo/categorias/edit/${d.id}`} className="ui basic button green">Edit</Link>
                                         </TableCell>
                                         <TableCell >
                                             <Button onClick={() => del(d.id, this.props.history)} >Delete</Button>

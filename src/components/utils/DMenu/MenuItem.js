@@ -42,40 +42,48 @@ class MenuItem extends React.Component<any, any> {
   };
 
   render() {
-    const { children, classes, href, title, icon, isChildren } = this.props;
+    const { children, classes, href, title, icon, isChildren, novisible } = this.props;
     const { openImmediately } = this.props;
+    //console.log("MenuItem.novisible:" + novisible)
     //console.log("openImmediately:"+openImmediately)
     if (href) {
       //console.log("MenuItem.isChildren:"+isChildren)
-      return (
-        <Route exact path={href}
+      if (novisible) {
+        return (
+          <Route exact path={href}
+             />
+        )
 
-          children={({ match, location }) => (
-            <Link to={href} 
-            className={classes.navLinkButton}>
+      } else {
+        return (
+          <Route  path={href}
+            children={({ match, location }) => (
+              <Link to={href}
+                className={classes.navLinkButton}>
 
 
-              <ListItem onClick={this.props.onClick}
-                className={match ? (isChildren ? classes.active : classes.activeNoChildren) : (isChildren ? classes.nested : classes.nestedNoChildren)}
-              >
+                <ListItem onClick={this.props.onClick}
+                  className={match ? (isChildren ? classes.active : classes.activeNoChildren) : (isChildren ? classes.nested : classes.nestedNoChildren)}
+                >
 
-                <ListItemIcon>
-                  <Icon >{icon}</Icon>
-                </ListItemIcon>
-                <ListItemText inset primary={title}>
+                  <ListItemIcon>
+                    <Icon >{icon}</Icon>
+                  </ListItemIcon>
+                  <ListItemText inset primary={title}>
 
-                </ListItemText>
+                  </ListItemText>
 
-              </ListItem>
-            </Link>
-          )} />
+                </ListItem>
+              </Link>
+            )} />
+        )
+      }
 
-      );
     }
 
     return (
-      <ListItem  disableGutters
-className={(openImmediately ? classes.navItemActive : classes.navItem) }
+      <ListItem disableGutters
+        className={(openImmediately ? classes.navItemActive : classes.navItem)}
 
       >
         <Button
@@ -109,6 +117,7 @@ MenuItem.propTypes = {
   openImmediately: PropTypes.bool,
   title: PropTypes.string.isRequired,
   isChildren: PropTypes.bool,
+  visible: PropTypes.bool,
 };
 
 export default MenuItem;

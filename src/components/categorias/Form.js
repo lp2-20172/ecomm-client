@@ -2,17 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Card, { CardHeader, CardContent } from 'material-ui/Card'
 import Avatar from 'material-ui/Avatar'
-import Typography from 'material-ui/Typography'
-import TextField from 'material-ui/TextField';
+//import Typography from 'material-ui/Typography'
+//import TextField from 'material-ui/TextField';
 
 import { save, getById, update } from '../../actions/categoria-action'
 import { connect } from 'react-redux'
-
-import {
-    Link
-} from 'react-router-dom'
-import { Redirect } from 'react-router'
-
 
 class Form extends Component {
     /*
@@ -29,30 +23,55 @@ class Form extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: null,
-            codigo: '',
-            nombre: ''
+            id: props.data ? props.data.id : null,
+            codigo: props.data ? props.data.codigo : '',
+            nombre: props.data ? props.data.nombre : ''
         }
     }
-
-    componentWillReceiveProps = (nextProps) => { // Load Asynchronously
-        const { data } = nextProps;
-        console.log('componentWillReceiveProps data:' + JSON.stringify(data))
-        this.setState({
-            id: data.id,
-            codigo: data.codigo,
-            nombre: data.nombre
-        })
-    }
-
+    /*
+        componentWillReceiveProps = (nextProps) => { // Load Asynchronously
+            const { data } = nextProps;
+            console.log('componentWillReceiveProps data:' + JSON.stringify(data))
+            this.setState({
+                id: data.id,
+                codigo: data.codigo,
+                nombre: data.nombre
+            })
+        }
+    */
     componentWillMount = () => {
+        /*
         const { id } = this.props.match.params
         if (id) {
-            this.props.getById(id)
+            //this.props.getById(id)
+            //this.props.getItemAsync(id)
+
+            this.props.getById(id).then(data => {
+                console.log('componentWillReceiveProps data:' + JSON.stringify(data))
+                this.setState({
+                    id: data.id,
+                    codigo: data.codigo,
+                    nombre: data.nombre
+                })
+            }).catch(e => {
+
+            });
         }
+        */
     }
 
+
     componentDidMount = () => {
+        const { id } = this.props.match.params
+        if (id) {
+            this.props.getById(id).then(data => {
+                this.setState({
+                    id: data.id,
+                    codigo: data.codigo,
+                    nombre: data.nombre
+                });
+            });
+        }
     }
 
     handleChange = (event) => {
@@ -115,10 +134,16 @@ Form.propTypes = {
     data: PropTypes.object
 }
 
-const mapStateToProps = (state) => {
-    return {
-        data: state.categoria.data
+const mapStateToProps = (state, props) => {
+    if (props.match.params.id) {
+        return {
+            data: state.categoria.list.find(item => item.id + '' === props.match.params.id + '')
+        }
     }
+    return {
+        data: null
+    }
+
 }
 /*
 const mapDispatchToProps = (dispatch) => {
@@ -134,4 +159,5 @@ export default connect(mapStateToProps, {
     save,
     getById,
     update
+
 })(Form)

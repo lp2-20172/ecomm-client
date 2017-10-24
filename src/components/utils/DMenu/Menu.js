@@ -46,6 +46,7 @@ function reduceChildRoutes(props, activePage, isChildren, items, childPage, inde
                 openImmediately={openImmediately}
                 title={pageToTitle(childPage)}
                 icon ={childPage.icon}
+                novisible ={childPage.novisible}
                 //isChildren ={false}
                 classes = {props.classes}
             >
@@ -64,6 +65,7 @@ function reduceChildRoutes(props, activePage, isChildren, items, childPage, inde
                 href={childPage.path}
                 onClick={props.onRequestClose}
                 isChildren ={isChildren}
+                novisible ={childPage.novisible}
                 classes = {props.classes}
             />,
         );

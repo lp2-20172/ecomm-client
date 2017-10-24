@@ -8,6 +8,8 @@ import AppLayout from './app/AppLayout'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
 import { blue, pink } from 'material-ui/colors';
 import { BrowserRouter as Router } from 'react-router-dom'
+import { Route } from 'react-router-dom'
+import Login from './Login'
 
 class App extends Component {
     componentWillMount() {
@@ -27,7 +29,10 @@ class App extends Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <Router>
-                    <AppLayout />
+                    
+                    <AppLayout >
+                    <Route path="/login" component={Login} />
+                    </AppLayout >
                 </Router>
             </MuiThemeProvider>
         )

@@ -1,4 +1,5 @@
-import { CATEGORIA_LIST, CATEGORIA_ADD, CATEGORIA_FETCH, CATEGORIA_UPDATE, CATEGORIA_DELETE } from '../actions/categoria-action'
+import { CATEGORIA_LIST_REQUEST, CATEGORIA_LIST_SUCCESS, CATEGORIA_LIST_FAILURE } from '../actions/categoria-action'
+import { CATEGORIA_ADD, CATEGORIA_FETCH, CATEGORIA_UPDATE, CATEGORIA_DELETE } from '../actions/categoria-action'
 
 const initialState = {
     list: [],
@@ -7,10 +8,24 @@ const initialState = {
 
 const categoriaReducer = (state = initialState, action) => {
     switch (action.type) {
-        case CATEGORIA_LIST: return {
+
+        case CATEGORIA_LIST_REQUEST: return {
             ...state,
-            list: action.list
+            list: [],
+            error: null
         }
+        case CATEGORIA_LIST_SUCCESS: return {
+            ...state,
+            list: action.list,
+            error: null
+        }
+        case CATEGORIA_LIST_FAILURE: return {
+            ...state,
+            list: [],
+            error: action.error,
+        }
+
+
         case CATEGORIA_ADD: return {
             ...state,
             //data: {} // no usado aun
